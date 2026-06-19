@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>201 Up — Scoreboard</title>
+<style>
+  @font-face {
+    font-family: 'system-serif';
+  }
+
+  :root{
+    --felt-1: #0b3d2e;
+    --felt-2: #0f4d3a;
+    --chalk: #f4f0e6;
+    --chalk-dim: #cfd9d0;
+    --gold: #d8b25c;
+    --gold-dim: #a8884a;
+    --line: rgba(244,240,230,0.14);
+    --line-strong: rgba(244,240,230,0.28);
+    --danger: #c1554a;
+    --radius: 14px;
+  }
+
+  *{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body{
+    margin:0;
+    min-height:100%;
+    background: radial-gradient(ellipse at 50% -10%, #134a37 0%, var(--felt-1) 55%, #082c21 100%);
+    color: var(--chalk);
+    font-family: ui-serif, Georgia, 'Times New Roman', serif;
+  }
+
+  body{
+    /* subtle felt texture */
+    background-image:
+      radial-gradient(ellipse at 50% -10%, #134a37 0%, var(--felt-1) 55%, #082c21 100%),
+      repeating-linear-gradient(45deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 3px);
+    padding: max(20px, env(safe-area-inset-top)) 16px max(28px, env(safe-area-inset-bottom));
+  }
+
+  .wrap{ max-width: 640px; margin: 0 auto; }
+
+  /* ===== Header ===== */
+  header{
+    text-align:center;
+    margin-bottom: 18px;
+    position: relative;
+  }
+  .title{
+    font-family: 'Snell Roundhand', 'Brush Script MT', cursive;
+    font-size: 2.6rem;
+    line-height: 1;
+    color: var(--gold);
+    letter-spacing: 0.5px;
+    text-shadow: 0 2px 0 rgba(0,0,0,0.35);
+    margin: 0;
+  }
+  .subtitle{
+    font-family: ui-monospace, 'Courier New', monospace;
+    text-transform: uppercase;
+    font-size: 0.68rem;
+    letter-spacing: 3px;
+    color: var(--chalk-dim);
+    margin-top: 2px;
+  }
+  .target-pill{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    margin-top:10px;
+    padding: 4px 12px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    font-family: ui-monospace, monospace;
+    font-size: 0.72rem;
+    color: var(--chalk-dim);
+    letter-spacing: 1px;
+  }
+  .target-pill b{ color: var(--gold); font-size: 0.85rem; }
+
+  /* ===== Player cards ===== */
+  .players{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 380px){
+    .players{ grid-template-columns: 1fr; }
+  }
+
+  .player{
+    position:relative;
+    background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015));
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 14px 14px 12px;
+    transition: border-color 0.25s, box-shadow 0.25s;
+  }
+  .player.leader{
+    border-color: var(--gold-dim);
+    box-shadow: 0 0 0 1px rgba(216,178,92,0.15), 0 8px 20px -10px rgba(0,0,0,0.5);
+  }
+  .player.winner{
+    border-color: var(--gold);
+    box-shadow: 0 0 0 1px rgba(216,178,92,0.35), 0 0 24px -4px rgba(216,178,92,0.35);
+  }
+
+  .player-top{
+    display:flex;
+    align-items:flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .name-input{
+    background: none;
+    border: none;
+    border-bottom: 1px dashed var(--line-strong);
+    color: var(--chalk);
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 2px 2px 4px;
+    width: 100%;
+    min-width: 0;
+  }
+  .name-input:focus{ outline:none; border-bottom-color: var(--gold); }
+  .name-input::placeholder{ color: var(--chalk-dim); opacity: 0.6; }
+
+  .crown{
+    font-size: 0.95rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .player.leader .crown{ opacity: 0.85; }
+
+  .score-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap: 10px;
+    margin: 6px 0 8px;
+  }
+
+  .step-btn{
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid var(--line-strong);
+    background: rgba(255,255,255,0.04);
+    color: var(--chalk);
+    font-size: 1.1rem;
+    line-height: 1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    flex-shrink:0;
+    user-select: none;
+  }
+  .step-btn:active{ background: rgba(255,255,255,0.12); transform: scale(0.94); }
+
+  .score-input{
+    background: rgba(0,0,0,0.18);
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    color: var(--gold);
+    font-family: ui-monospace, 'Courier New', monospace;
+    font-size: 1.9rem;
+    font-weight: 700;
+    text-align: center;
+    width: 92px;
+    padding: 4px 0;
+    -moz-appearance: textfield;
+  }
+  .score-input::-webkit-outer-spin-button,
+  .score-input::-webkit-inner-spin-button{ -webkit-appearance: none; margin:0; }
+  .score-input:focus{ outline: none; border-color: var(--gold-dim); }
+
+  .progress-track{
+    height: 5px;
+    border-radius: 4px;
+    background: rgba(0,0,0,0.25);
+    overflow: hidden;
+    margin-top: 4px;
+  }
+  .progress-fill{
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+    border-radius: 4px;
+    transition: width 0.35s ease;
+  }
+
+  .wins-row{
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--line);
+  }
+  .wins-label{
+    font-family: ui-monospace, monospace;
+    font-size: 0.62rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--chalk-dim);
+  }
+  .tally{
+    font-family: ui-monospace, monospace;
+    font-size: 1rem;
+    color: var(--gold);
+    letter-spacing: 1px;
+  }
+
+  /* ===== Action bar ===== */
+  .actions{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 6px;
+  }
+  .btn{
+    font-family: ui-monospace, monospace;
+    font-size: 0.78rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 13px 10px;
+    border-radius: 10px;
+    border: 1px solid var(--line-strong);
+    background: rgba(255,255,255,0.03);
+    color: var(--chalk);
+    cursor: pointer;
+    text-align:center;
+  }
+  .btn:active{ background: rgba(255,255,255,0.1); }
+  .btn-gold{
+    border-color: var(--gold-dim);
+    color: var(--gold);
+    background: rgba(216,178,92,0.08);
+  }
+  .btn-danger{
+    color: #e6a89e;
+    border-color: rgba(193,85,74,0.5);
+    background: rgba(193,85,74,0.08);
+  }
+  .btn-full{ grid-column: 1 / -1; }
+
+  /* ===== Winner banner ===== */
+  .banner{
+    display:none;
+    text-align:center;
+    padding: 14px;
+    margin-bottom: 14px;
+    border: 1px solid var(--gold-dim);
+    border-radius: var(--radius);
+    background: rgba(216,178,92,0.08);
+  }
+  .banner.show{ display:block; }
+  .banner-text{
+    font-family: 'Snell Roundhand', 'Brush Script MT', cursive;
+    font-size: 1.6rem;
+    color: var(--gold);
+    margin: 0 0 8px;
+  }
+
+  footer{
+    text-align:center;
+    margin-top: 22px;
+    font-family: ui-monospace, monospace;
+    font-size: 0.62rem;
+    letter-spacing: 1.5px;
+    color: rgba(244,240,230,0.35);
+    text-transform: uppercase;
+  }
+
+  .toast{
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: #1a1a1a;
+    color: var(--chalk);
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-family: ui-monospace, monospace;
+    font-size: 0.78rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s, transform 0.25s;
+    z-index: 50;
+    border: 1px solid var(--line-strong);
+  }
+  .toast.show{ opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1 class="title">201 Up</h1>
+    <div class="subtitle">Card Table Scoreboard</div>
+    <div class="target-pill">First to <b id="targetDisplay">201</b> wins the hand</div>
+  </header>
+
+  <div class="banner" id="banner">
+    <p class="banner-text" id="bannerText">— wins the game! —</p>
+    <button class="btn btn-gold" id="newRoundBtn" style="width:100%;">Start Next Round</button>
+  </div>
+
+  <div class="players" id="players"></div>
+
+  <div class="actions">
+    <button class="btn btn-danger" id="resetScoresBtn">Reset Scores</button>
+    <button class="btn" id="resetWinsBtn">Reset Win Tally</button>
+    <button class="btn btn-full" id="addPlayerBtn">+ Add Player</button>
+  </div>
+
+  <footer>Tap a name to rename · Scores save automatically</footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  const TARGET = 201;
+  const STORAGE_KEY = 'state';
+  const DEFAULT_NAMES = ['Player 1', 'Player 2', 'Player 3', 'Player 4'];
+
+  let state = {
+    players: DEFAULT_NAMES.map((n, i) => ({ id: 'p' + i, name: n, score: 0, wins: 0 }))
+  };
+
+  const playersEl = document.getElementById('players');
+  const bannerEl = document.getElementById('banner');
+  const bannerTextEl = document.getElementById('bannerText');
+  const toastEl = document.getElementById('toast');
+  document.getElementById('targetDisplay').textContent = TARGET;
+
+  function showToast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastEl._t);
+    toastEl._t = setTimeout(() => toastEl.classList.remove('show'), 1600);
+  }
+
+  async function save(){
+    try{
+      const res = await window.storage.set(STORAGE_KEY, JSON.stringify(state));
+      if(!res) console.error('Save failed: no result returned');
+    }catch(e){
+      console.error('Save failed', e);
+      showToast('Could not save — check connection');
+    }
+  }
+
+  async function load(){
+    try{
+      const res = await window.storage.get(STORAGE_KEY);
+      if(res && res.value){
+        const parsed = JSON.parse(res.value);
+        if(parsed && Array.isArray(parsed.players) && parsed.players.length){
+          state = parsed;
+        }
+      }
+    }catch(e){
+      // no existing data yet — use defaults
+    }
+    render();
+  }
+
+  function getWinner(){
+    return state.players.find(p => p.score >= TARGET) || null;
+  }
+
+  function getLeaderId(){
+    const max = Math.max(...state.players.map(p => p.score));
+    if(max <= 0) return null;
+    const leaders = state.players.filter(p => p.score === max);
+    return leaders.length === 1 ? leaders[0].id : null;
+  }
+
+  function render(){
+    const winner = getWinner();
+    const leaderId = getLeaderId();
+
+    if(winner){
+      bannerEl.classList.add('show');
+      bannerTextEl.textContent = `${winner.name || 'Someone'} wins the game!`;
+    } else {
+      bannerEl.classList.remove('show');
+    }
+
+    playersEl.innerHTML = '';
+
+    state.players.forEach(p => {
+      const isWinner = winner && winner.id === p.id;
+      const isLeader = !winner && leaderId === p.id;
+      const pct = Math.max(0, Math.min(100, (p.score / TARGET) * 100));
+
+      const card = document.createElement('div');
+      card.className = 'player' + (isLeader ? ' leader' : '') + (isWinner ? ' winner' : '');
+
+      card.innerHTML = `
+        <div class="player-top">
+          <input class="name-input" type="text" value="${escapeAttr(p.name)}" placeholder="Player name" maxlength="20" data-id="${p.id}" data-action="rename">
+          <span class="crown">♛</span>
+        </div>
+        <div class="score-row">
+          <div class="step-btn" data-id="${p.id}" data-action="dec">−</div>
+          <input class="score-input" type="number" inputmode="numeric" value="${p.score}" data-id="${p.id}" data-action="setscore">
+          <div class="step-btn" data-id="${p.id}" data-action="inc">+</div>
+        </div>
+        <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <div class="wins-row">
+          <span class="wins-label">Games Won</span>
+          <span class="tally">${tallyMarks(p.wins)} <span style="color:var(--chalk-dim); font-size:0.85em;">(${p.wins})</span></span>
+        </div>
+      `;
+      playersEl.appendChild(card);
+    });
+  }
+
+  function tallyMarks(n){
+    if(n === 0) return '—';
+    const groups = Math.floor(n / 5);
+    const rem = n % 5;
+    let out = '卌'.repeat(groups); // five-bar tally glyph
+    out += '丨'.repeat(rem);
+    return out;
+  }
+
+  function escapeAttr(str){
+    return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+  }
+
+  function findPlayer(id){ return state.players.find(p => p.id === id); }
+
+  playersEl.addEventListener('click', (e) => {
+    const el = e.target.closest('[data-action]');
+    if(!el) return;
+    const action = el.dataset.action;
+    const id = el.dataset.id;
+    const p = findPlayer(id);
+    if(!p) return;
+
+    if(action === 'inc'){ p.score += 1; save(); render(); }
+    if(action === 'dec'){ p.score = Math.max(0, p.score - 1); save(); render(); }
+  });
+
+  playersEl.addEventListener('change', (e) => {
+    const el = e.target;
+    const action = el.dataset.action;
+    const id = el.dataset.id;
+    const p = findPlayer(id);
+    if(!p) return;
+
+    if(action === 'setscore'){
+      let v = parseInt(el.value, 10);
+      if(isNaN(v) || v < 0) v = 0;
+      p.score = v;
+      save();
+      render();
+    }
+    if(action === 'rename'){
+      p.name = el.value.trim();
+      save();
+      render();
+    }
+  });
+
+  // Keep cursor sane: re-render on blur for name field already handled by 'change'
+
+  document.getElementById('addPlayerBtn').addEventListener('click', () => {
+    if(state.players.length >= 8){
+      showToast('Max 8 players');
+      return;
+    }
+    const n = state.players.length + 1;
+    state.players.push({ id: 'p' + Date.now(), name: 'Player ' + n, score: 0, wins: 0 });
+    save();
+    render();
+  });
+
+  document.getElementById('resetScoresBtn').addEventListener('click', () => {
+    state.players.forEach(p => p.score = 0);
+    save();
+    render();
+    showToast('Scores reset');
+  });
+
+  document.getElementById('resetWinsBtn').addEventListener('click', () => {
+    state.players.forEach(p => p.wins = 0);
+    save();
+    render();
+    showToast('Win tally reset');
+  });
+
+  document.getElementById('newRoundBtn').addEventListener('click', () => {
+    const winner = getWinner();
+    if(winner){
+      winner.wins += 1;
+    }
+    state.players.forEach(p => p.score = 0);
+    save();
+    render();
+    showToast(winner ? `${winner.name}'s win recorded` : 'New round started');
+  });
+
+  load();
+})();
+</script>
+</body>
+</html>
