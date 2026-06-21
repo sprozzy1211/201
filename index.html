@@ -3,330 +3,317 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>201 Up — Scoreboard</title>
+<title>201 — The Climb</title>
 <style>
-  @font-face {
-    font-family: 'system-serif';
-  }
-
   :root{
-    --felt-1: #0b3d2e;
-    --felt-2: #0f4d3a;
-    --chalk: #f4f0e6;
-    --chalk-dim: #cfd9d0;
-    --gold: #d8b25c;
-    --gold-dim: #a8884a;
-    --line: rgba(244,240,230,0.14);
-    --line-strong: rgba(244,240,230,0.28);
-    --danger: #c1554a;
-    --radius: 14px;
+    --void: #0a0e1a;
+    --surface: #131a30;
+    --surface-2: #1a2240;
+    --border: #232c4d;
+    --border-hi: #313c66;
+    --text: #eef1fb;
+    --text-dim: #8b93b5;
+    --text-faint: #545d80;
+    --mint: #19f2c2;
+    --mint-dim: #0e8a72;
+    --pink: #ff3d6e;
+    --pink-dim: #7a2138;
+    --gold: #ffc338;
+    --gold-dim: #8a6b1f;
+    --amber: #ff9f40;
+    --amber-dim: #6b5a1a;
+    --radius-lg: 18px;
+    --radius-md: 13px;
+    --radius-sm: 9px;
   }
 
   *{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
   html, body{
-    margin:0;
-    min-height:100%;
-    background: radial-gradient(ellipse at 50% -10%, #134a37 0%, var(--felt-1) 55%, #082c21 100%);
-    color: var(--chalk);
-    font-family: ui-serif, Georgia, 'Times New Roman', serif;
+    margin: 0;
+    min-height: 100%;
+    background: var(--void);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, 'Segoe UI', Roboto, system-ui, sans-serif;
   }
 
   body{
-    /* subtle felt texture */
-    background-image:
-      radial-gradient(ellipse at 50% -10%, #134a37 0%, var(--felt-1) 55%, #082c21 100%),
-      repeating-linear-gradient(45deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 3px);
-    padding: max(20px, env(safe-area-inset-top)) 16px max(28px, env(safe-area-inset-bottom));
+    background:
+      radial-gradient(900px 500px at 50% -8%, rgba(25,242,194,0.09), transparent 60%),
+      radial-gradient(700px 400px at 100% 110%, rgba(255,61,110,0.06), transparent 55%),
+      var(--void);
+    padding: max(16px, env(safe-area-inset-top)) 14px max(24px, env(safe-area-inset-bottom));
+    overflow-x: hidden;
   }
 
-  .wrap{ max-width: 640px; margin: 0 auto; }
+  .wrap{ max-width: 460px; margin: 0 auto; }
 
   /* ===== Header ===== */
   header{
-    text-align:center;
-    margin-bottom: 18px;
-    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    padding: 2px 2px 0;
   }
-  .title{
-    font-family: 'Snell Roundhand', 'Brush Script MT', cursive;
-    font-size: 2.6rem;
-    line-height: 1;
-    color: var(--gold);
-    letter-spacing: 0.5px;
-    text-shadow: 0 2px 0 rgba(0,0,0,0.35);
-    margin: 0;
+  .brand{ display:flex; align-items:baseline; gap: 8px; }
+  .brand-num{ font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; }
+  .brand-tag{
+    font-size: 0.6rem; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase;
+    color: var(--mint); background: rgba(25,242,194,0.1);
+    border: 1px solid rgba(25,242,194,0.25); border-radius: 999px; padding: 3px 8px;
   }
-  .subtitle{
-    font-family: ui-monospace, 'Courier New', monospace;
-    text-transform: uppercase;
-    font-size: 0.68rem;
-    letter-spacing: 3px;
-    color: var(--chalk-dim);
-    margin-top: 2px;
-  }
-  .target-pill{
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    margin-top:10px;
-    padding: 4px 12px;
-    border: 1px solid var(--line-strong);
-    border-radius: 999px;
-    font-family: ui-monospace, monospace;
-    font-size: 0.72rem;
-    color: var(--chalk-dim);
-    letter-spacing: 1px;
-  }
-  .target-pill b{ color: var(--gold); font-size: 0.85rem; }
+  .rule-pill{ font-size: 0.64rem; font-weight: 600; color: var(--text-dim); text-align:right; }
+  .rule-pill b{ color: var(--pink); font-weight: 800; }
 
-  /* ===== Player cards ===== */
-  .players{
-    display:grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 16px;
+  /* ===== Game over banner ===== */
+  .banner{
+    display:none; text-align:center; padding: 20px 18px 16px; margin-bottom: 14px;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(160deg, rgba(255,195,56,0.16), rgba(255,195,56,0.04));
+    border: 1px solid rgba(255,195,56,0.4);
   }
-  @media (max-width: 380px){
-    .players{ grid-template-columns: 1fr; }
+  .banner.show{ display:block; animation: bannerIn 0.45s cubic-bezier(.2,1.4,.4,1); }
+  @keyframes bannerIn{ from{ opacity:0; transform: scale(0.93) translateY(-6px); } to{ opacity:1; transform: scale(1) translateY(0); } }
+  .banner-eyebrow{ font-size: 0.6rem; font-weight: 800; letter-spacing: 0.17em; text-transform: uppercase; color: var(--gold); margin: 0 0 4px; }
+  .banner-name{
+    font-size: 1.5rem; font-weight: 800; margin: 0 0 4px;
+    background: linear-gradient(135deg, #fff7e0, var(--gold));
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
   }
+  .banner-sub{ font-size: 0.72rem; color: var(--text-dim); margin: 0 0 14px; }
 
-  .player{
+  /* ===== Climb lanes ===== */
+  .climb{ display:flex; flex-direction:column; gap: 10px; margin-bottom: 16px; }
+  .lane{
     position:relative;
-    background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015));
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    padding: 14px 14px 12px;
-    transition: border-color 0.25s, box-shadow 0.25s;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 13px 14px 12px;
+    transition: border-color 0.25s, background 0.25s;
   }
-  .player.leader{
-    border-color: var(--gold-dim);
-    box-shadow: 0 0 0 1px rgba(216,178,92,0.15), 0 8px 20px -10px rgba(0,0,0,0.5);
+  .lane.lead{
+    border-color: rgba(25,242,194,0.45);
+    background: linear-gradient(165deg, rgba(25,242,194,0.07), var(--surface) 55%);
   }
-  .player.winner{
-    border-color: var(--gold);
-    box-shadow: 0 0 0 1px rgba(216,178,92,0.35), 0 0 24px -4px rgba(216,178,92,0.35);
+  .lane.winner{
+    border-color: rgba(255,195,56,0.55);
+    background: linear-gradient(165deg, rgba(255,195,56,0.1), var(--surface) 55%);
+    box-shadow: 0 0 0 1px rgba(255,195,56,0.2), 0 12px 28px -12px rgba(255,195,56,0.35);
+  }
+  .lane.bust{
+    border-color: rgba(255,61,110,0.4);
+    background: linear-gradient(165deg, rgba(255,61,110,0.08), var(--surface) 55%);
+  }
+  .lane.bust.shake{ animation: bustShake 0.4s cubic-bezier(.36,.07,.19,.97); }
+  @keyframes bustShake{
+    10%,90%{ transform: translateX(-1px); } 20%,80%{ transform: translateX(2px); }
+    30%,50%,70%{ transform: translateX(-4px); } 40%,60%{ transform: translateX(4px); }
   }
 
-  .player-top{
-    display:flex;
-    align-items:flex-start;
-    justify-content: space-between;
-    gap: 8px;
-    margin-bottom: 8px;
-  }
+  .lane-head{ display:flex; align-items:center; gap:10px; margin-bottom: 8px; }
 
+  .avatar{
+    width: 36px; height: 36px; border-radius: 11px;
+    background: var(--surface-2); border: 1px solid var(--border-hi);
+    display:flex; align-items:center; justify-content:center;
+    font-size: 0.9rem; font-weight: 800; color: var(--text-dim);
+    flex-shrink: 0; text-transform: uppercase; transition: all 0.25s;
+  }
+  .lane.lead .avatar{ background: rgba(25,242,194,0.14); border-color: rgba(25,242,194,0.5); color: var(--mint); }
+  .lane.winner .avatar{ background: rgba(255,195,56,0.16); border-color: rgba(255,195,56,0.55); color: var(--gold); }
+  .lane.bust .avatar{ background: rgba(255,61,110,0.12); border-color: rgba(255,61,110,0.4); color: var(--pink); }
+
+  .lane-mid{ flex:1; min-width:0; }
+  .name-row{ display:flex; align-items:center; gap:6px; }
   .name-input{
-    background: none;
-    border: none;
-    border-bottom: 1px dashed var(--line-strong);
-    color: var(--chalk);
-    font-family: inherit;
-    font-size: 1rem;
-    font-weight: 600;
-    padding: 2px 2px 4px;
-    width: 100%;
-    min-width: 0;
+    background:none; border:none; color: var(--text); font-family: inherit;
+    font-size: 0.92rem; font-weight: 700; padding: 1px 0; width: 100%; min-width:0;
   }
-  .name-input:focus{ outline:none; border-bottom-color: var(--gold); }
-  .name-input::placeholder{ color: var(--chalk-dim); opacity: 0.6; }
+  .name-input:focus{ outline:none; }
+  .name-input::placeholder{ color: var(--text-faint); }
 
-  .crown{
-    font-size: 0.95rem;
-    flex-shrink: 0;
-    margin-top: 2px;
-    opacity: 0;
-    transition: opacity 0.2s;
+  .name-select{
+    -webkit-appearance: none; appearance: none;
+    cursor: pointer;
+    padding-right: 18px;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%238b93b5' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0 center;
   }
-  .player.leader .crown{ opacity: 0.85; }
+  .name-select option{ background: var(--surface-2); color: var(--text); }
+  .name-select option:disabled{ color: var(--text-faint); }
 
-  .score-row{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap: 10px;
-    margin: 6px 0 8px;
+  .status-chip{
+    font-size: 0.55rem; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase;
+    padding: 2px 6px; border-radius: 5px; flex-shrink:0; display:none;
   }
+  .lane.lead .status-chip.chip-lead{ display:inline-block; background: rgba(25,242,194,0.15); color: var(--mint); }
+  .lane.winner .status-chip.chip-win{ display:inline-block; background: rgba(255,195,56,0.18); color: var(--gold); }
+  .lane.bust .status-chip.chip-bust{ display:inline-block; background: rgba(255,61,110,0.16); color: var(--pink); }
 
-  .step-btn{
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    border: 1px solid var(--line-strong);
-    background: rgba(255,255,255,0.04);
-    color: var(--chalk);
-    font-size: 1.1rem;
-    line-height: 1;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    cursor:pointer;
-    flex-shrink:0;
-    user-select: none;
-  }
-  .step-btn:active{ background: rgba(255,255,255,0.12); transform: scale(0.94); }
+  .stat-line{ font-size: 0.66rem; color: var(--text-faint); font-weight:600; display:flex; gap:10px; margin-top:1px; }
+  .stat-line b{ color: var(--text-dim); font-weight:700; }
 
-  .score-input{
-    background: rgba(0,0,0,0.18);
-    border: 1px solid var(--line-strong);
-    border-radius: 10px;
-    color: var(--gold);
-    font-family: ui-monospace, 'Courier New', monospace;
-    font-size: 1.9rem;
-    font-weight: 700;
-    text-align: center;
-    width: 92px;
-    padding: 4px 0;
-    -moz-appearance: textfield;
+  .del-btn{
+    width: 24px; height: 24px; border-radius: 7px; display:flex; align-items:center; justify-content:center;
+    font-size: 0.7rem; color: var(--text-faint); cursor: pointer; flex-shrink: 0;
   }
-  .score-input::-webkit-outer-spin-button,
-  .score-input::-webkit-inner-spin-button{ -webkit-appearance: none; margin:0; }
-  .score-input:focus{ outline: none; border-color: var(--gold-dim); }
+  .del-btn:active{ background: rgba(255,61,110,0.15); color: var(--pink); }
 
-  .progress-track{
-    height: 5px;
-    border-radius: 4px;
-    background: rgba(0,0,0,0.25);
-    overflow: hidden;
-    margin-top: 4px;
-  }
-  .progress-fill{
-    height: 100%;
-    background: linear-gradient(90deg, var(--gold-dim), var(--gold));
-    border-radius: 4px;
-    transition: width 0.35s ease;
-  }
+  .lane-score-row{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:6px; }
+  .lane-score{ font-size: 1.5rem; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing:-0.02em; }
+  .lane.lead .lane-score{ color: var(--mint); }
+  .lane.winner .lane-score{ color: var(--gold); }
+  .lane.bust .lane-score{ color: var(--pink); }
+  .lane-score-target{ font-size: 0.66rem; color: var(--text-faint); font-weight:600; }
 
-  .wins-row{
-    display:flex;
-    align-items:center;
-    justify-content: space-between;
-    margin-top: 10px;
-    padding-top: 8px;
-    border-top: 1px dashed var(--line);
+  .track{ height: 18px; border-radius: 9px; background: var(--surface-2); overflow:hidden; position:relative; }
+  .fill{ height:100%; border-radius:9px; transition: width 0.45s cubic-bezier(.2,.8,.2,1), background 0.3s; }
+  .fill.lead{ background: linear-gradient(90deg, var(--mint-dim), var(--mint)); }
+  .fill.mid{ background: linear-gradient(90deg, var(--amber-dim), var(--amber)); }
+  .fill.bust{ background: linear-gradient(90deg, var(--pink-dim), var(--pink)); }
+  .fill.win{ background: linear-gradient(90deg, var(--gold-dim), var(--gold)); }
+
+  /* ===== Round entry card ===== */
+  .entry-card{
+    background: var(--surface); border: 1px solid var(--border-hi);
+    border-radius: var(--radius-lg); padding: 16px; margin-bottom: 14px;
   }
-  .wins-label{
-    font-family: ui-monospace, monospace;
-    font-size: 0.62rem;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--chalk-dim);
+  .entry-title{ font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--mint); font-weight: 800; margin-bottom: 12px; }
+  .entry-row{ display:flex; align-items:center; justify-content:space-between; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .entry-row:last-of-type{ border-bottom:none; }
+  .entry-row .nm{ font-size: 0.88rem; font-weight: 600; }
+  .entry-row .nm.locked{ color: var(--text-faint); }
+  .entry-row input{
+    width: 64px; text-align:center; background: var(--surface-2); border: 1px solid var(--border-hi);
+    border-radius: 9px; color: var(--text); font-size: 1rem; font-weight:700; padding: 7px 0; font-family: inherit;
+    font-variant-numeric: tabular-nums;
   }
-  .tally{
-    font-family: ui-monospace, monospace;
-    font-size: 1rem;
-    color: var(--gold);
-    letter-spacing: 1px;
+  .entry-row input::-webkit-outer-spin-button, .entry-row input::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+  .entry-row input:focus{ outline:none; border-color: var(--mint); }
+  .entry-row input:disabled{ opacity:0.35; }
+
+  .submit-round-btn{
+    width: 100%; margin-top: 12px; padding: 13px;
+    border-radius: var(--radius-md); border: 1px solid rgba(25,242,194,0.4);
+    background: linear-gradient(135deg, rgba(25,242,194,0.18), rgba(25,242,194,0.08));
+    color: var(--mint); font-family: inherit; font-size: 0.82rem; font-weight: 800;
+    letter-spacing: 0.02em; cursor: pointer;
   }
+  .submit-round-btn:active{ background: rgba(25,242,194,0.25); }
+  .submit-round-btn:disabled{ opacity: 0.4; }
+
+  /* ===== Round history ===== */
+  .history{ margin-bottom: 14px; }
+  .history-toggle{
+    display:flex; align-items:center; justify-content:space-between; padding: 4px 4px 10px;
+    font-size: 0.7rem; font-weight: 700; color: var(--text-dim); cursor:pointer;
+  }
+  .history-toggle .chev{ transition: transform 0.2s; color: var(--text-faint); }
+  .history-toggle.open .chev{ transform: rotate(180deg); }
+  .history-list{ display:none; flex-direction:column; gap:8px; }
+  .history-list.open{ display:flex; }
+  .round-card{
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 11px 13px;
+  }
+  .round-card-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom: 7px; }
+  .round-num{ font-size: 0.78rem; font-weight: 800; color: var(--text-dim); }
+  .round-winner-tag{ font-size: 0.6rem; font-weight: 700; color: var(--mint); background: rgba(25,242,194,0.1); padding: 2px 7px; border-radius: 99px; }
+  .round-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 4px 14px; }
+  .round-grid div{ display:flex; justify-content:space-between; font-size: 0.78rem; }
+  .round-grid .pname{ color: var(--text-faint); }
+  .round-grid .pscore{ font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text-dim); }
+  .round-grid .pscore.low{ color: var(--mint); }
+  .round-grid .pscore.over{ color: var(--pink); }
+  .empty-history{ font-size: 0.74rem; color: var(--text-faint); text-align:center; padding: 14px 0; }
+
+  /* ===== Hall of fame ===== */
+  .hof-title{ font-size: 0.64rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-faint); font-weight: 700; margin: 4px 4px 8px; }
+  .trophy-row{ display:flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .trophy-pill{
+    flex: 1 1 auto; min-width: 70px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    text-align:center; padding: 10px 6px;
+  }
+  .trophy-pill .n{ font-size: 1.05rem; font-weight: 800; color: var(--gold); }
+  .trophy-pill .l{ font-size: 0.58rem; color: var(--text-dim); margin-top: 2px; font-weight:600; }
 
   /* ===== Action bar ===== */
-  .actions{
-    display:grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-top: 6px;
-  }
+  .actions{ display:grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }
   .btn{
-    font-family: ui-monospace, monospace;
-    font-size: 0.78rem;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    padding: 13px 10px;
-    border-radius: 10px;
-    border: 1px solid var(--line-strong);
-    background: rgba(255,255,255,0.03);
-    color: var(--chalk);
-    cursor: pointer;
-    text-align:center;
+    font-family: inherit; font-size: 0.72rem; font-weight: 700; padding: 12px 10px;
+    border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--surface);
+    color: var(--text-dim); cursor: pointer; text-align:center; transition: background 0.15s;
   }
-  .btn:active{ background: rgba(255,255,255,0.1); }
-  .btn-gold{
-    border-color: var(--gold-dim);
-    color: var(--gold);
-    background: rgba(216,178,92,0.08);
-  }
-  .btn-danger{
-    color: #e6a89e;
-    border-color: rgba(193,85,74,0.5);
-    background: rgba(193,85,74,0.08);
-  }
+  .btn:active{ background: var(--surface-2); }
+  .btn-primary{ border-color: rgba(25,242,194,0.35); color: var(--mint); background: rgba(25,242,194,0.06); }
+  .btn-danger{ color: var(--pink); border-color: rgba(255,61,110,0.3); background: rgba(255,61,110,0.05); }
   .btn-full{ grid-column: 1 / -1; }
-
-  /* ===== Winner banner ===== */
-  .banner{
-    display:none;
-    text-align:center;
-    padding: 14px;
-    margin-bottom: 14px;
-    border: 1px solid var(--gold-dim);
-    border-radius: var(--radius);
-    background: rgba(216,178,92,0.08);
-  }
-  .banner.show{ display:block; }
-  .banner-text{
-    font-family: 'Snell Roundhand', 'Brush Script MT', cursive;
-    font-size: 1.6rem;
-    color: var(--gold);
-    margin: 0 0 8px;
+  .btn-gold{
+    border-color: rgba(255,195,56,0.5); color: #1a1306;
+    background: linear-gradient(135deg, #ffe49a, var(--gold)); font-weight: 800;
   }
 
-  footer{
-    text-align:center;
-    margin-top: 22px;
-    font-family: ui-monospace, monospace;
-    font-size: 0.62rem;
-    letter-spacing: 1.5px;
-    color: rgba(244,240,230,0.35);
-    text-transform: uppercase;
-  }
+  footer{ text-align:center; margin-top: 16px; font-size: 0.62rem; font-weight: 600; color: var(--text-faint); }
 
   .toast{
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%) translateY(10px);
-    background: #1a1a1a;
-    color: var(--chalk);
-    padding: 10px 18px;
-    border-radius: 8px;
-    font-family: ui-monospace, monospace;
-    font-size: 0.78rem;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.25s, transform 0.25s;
-    z-index: 50;
-    border: 1px solid var(--line-strong);
+    position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%) translateY(10px);
+    background: var(--surface-2); color: var(--text); padding: 11px 18px; border-radius: 12px;
+    font-size: 0.78rem; font-weight: 600; opacity: 0; pointer-events: none;
+    transition: opacity 0.25s, transform 0.25s; z-index: 50; border: 1px solid var(--border-hi);
+    box-shadow: 0 8px 24px -8px rgba(0,0,0,0.5); max-width: 90vw; text-align:center;
   }
   .toast.show{ opacity: 1; transform: translateX(-50%) translateY(0); }
 
-  @media (prefers-reduced-motion: reduce){
-    *{ transition: none !important; }
-  }
+  @media (prefers-reduced-motion: reduce){ *{ animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
 <div class="wrap">
 
   <header>
-    <h1 class="title">201 Up</h1>
-    <div class="subtitle">Card Table Scoreboard</div>
-    <div class="target-pill">First to <b id="targetDisplay">201</b> wins the hand</div>
+    <div class="brand">
+      <span class="brand-num">201</span>
+      <span class="brand-tag">Live</span>
+    </div>
+    <div class="rule-pill">Cross <b id="targetDisplay">201</b> → busted<br>Lowest total wins</div>
   </header>
 
   <div class="banner" id="banner">
-    <p class="banner-text" id="bannerText">— wins the game! —</p>
-    <button class="btn btn-gold" id="newRoundBtn" style="width:100%;">Start Next Round</button>
+    <p class="banner-eyebrow">Game over</p>
+    <p class="banner-name" id="bannerText">—</p>
+    <p class="banner-sub" id="bannerSub"></p>
+    <button class="btn btn-gold" id="newGameBtn" style="width:100%;">Start new game</button>
   </div>
 
-  <div class="players" id="players"></div>
+  <div class="climb" id="climb"></div>
+
+  <div class="entry-card" id="entryCard">
+    <div class="entry-title" id="entryTitle">Enter round 1</div>
+    <div id="entryRows"></div>
+    <button class="submit-round-btn" id="submitRoundBtn">Save round</button>
+  </div>
+
+  <div class="history">
+    <div class="history-toggle" id="historyToggle">
+      <span id="historyToggleLabel">Round history (0)</span>
+      <span class="chev">▾</span>
+    </div>
+    <div class="history-list" id="historyList"></div>
+  </div>
+
+  <div class="hof-title">Games won overall</div>
+  <div class="trophy-row" id="trophyRow"></div>
 
   <div class="actions">
-    <button class="btn btn-danger" id="resetScoresBtn">Reset Scores</button>
-    <button class="btn" id="resetWinsBtn">Reset Win Tally</button>
-    <button class="btn btn-full" id="addPlayerBtn">+ Add Player</button>
+    <button class="btn btn-danger" id="resetGameBtn">Reset this game</button>
+    <button class="btn" id="resetWinsBtn">Reset win tally</button>
+    <button class="btn btn-primary btn-full" id="addPlayerBtn">+ Add player</button>
   </div>
 
-  <footer>Tap a name to rename · Scores save automatically</footer>
+  <footer>Tap a name to rename · Saves automatically</footer>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -334,16 +321,34 @@
 <script>
 (function(){
   const TARGET = 201;
-  const STORAGE_KEY = 'state';
-  const DEFAULT_NAMES = ['Player 1', 'Player 2', 'Player 3', 'Player 4'];
+  const STORAGE_KEY = 'state_v2';
+  const DEFAULT_ROSTER = ['Mum', 'Dad', 'James', 'Lucy', 'Grandma', 'Grandad', 'Archie'];
 
   let state = {
-    players: DEFAULT_NAMES.map((n, i) => ({ id: 'p' + i, name: n, score: 0, wins: 0 }))
+    roster: DEFAULT_ROSTER.slice(),
+    players: ['Mum','Dad','James','Lucy'].map((n,i) => ({
+      id: 'p'+i, name: n, total: 0, wins: 0, roundWins: 0, busted: false
+    })),
+    rounds: [],     // [{ scores: {id: points or null if locked/skipped}, winnerId }]
+    gameOver: false,
+    gameWinnerId: null
   };
+  let prevBustIds = new Set();
+  let historyOpen = false;
+  let storageAvailable = true;
+  let saveFailWarned = false;
 
-  const playersEl = document.getElementById('players');
+  const climbEl = document.getElementById('climb');
+  const entryRowsEl = document.getElementById('entryRows');
+  const entryTitleEl = document.getElementById('entryTitle');
+  const entryCardEl = document.getElementById('entryCard');
   const bannerEl = document.getElementById('banner');
   const bannerTextEl = document.getElementById('bannerText');
+  const bannerSubEl = document.getElementById('bannerSub');
+  const historyListEl = document.getElementById('historyList');
+  const historyToggleEl = document.getElementById('historyToggle');
+  const historyToggleLabelEl = document.getElementById('historyToggleLabel');
+  const trophyRowEl = document.getElementById('trophyRow');
   const toastEl = document.getElementById('toast');
   document.getElementById('targetDisplay').textContent = TARGET;
 
@@ -351,17 +356,18 @@
     toastEl.textContent = msg;
     toastEl.classList.add('show');
     clearTimeout(toastEl._t);
-    toastEl._t = setTimeout(() => toastEl.classList.remove('show'), 1600);
+    toastEl._t = setTimeout(() => toastEl.classList.remove('show'), 1700);
   }
 
   async function save(){
+    if(!storageAvailable) return;
     try{
       const res = await window.storage.set(STORAGE_KEY, JSON.stringify(state));
-      if(!res) console.error('Save failed: no result returned');
-    }catch(e){
-      console.error('Save failed', e);
-      showToast('Could not save — check connection');
-    }
+      if(!res){ storageAvailable = false; warnSaveFail(); }
+    }catch(e){ storageAvailable = false; warnSaveFail(); }
+  }
+  function warnSaveFail(){
+    if(!saveFailWarned){ showToast('Saving unavailable here — scores stay for this session'); saveFailWarned = true; }
   }
 
   async function load(){
@@ -371,150 +377,368 @@
         const parsed = JSON.parse(res.value);
         if(parsed && Array.isArray(parsed.players) && parsed.players.length){
           state = parsed;
+          if(!Array.isArray(state.roster) || state.roster.length === 0){
+            state.roster = DEFAULT_ROSTER.slice();
+          }
+          // make sure any player names not yet in the roster get added (covers old saves)
+          state.players.forEach(p => { if(!state.roster.includes(p.name)) state.roster.push(p.name); });
         }
       }
-    }catch(e){
-      // no existing data yet — use defaults
-    }
+    }catch(e){ /* no existing data — use defaults */ }
     render();
   }
 
-  function getWinner(){
-    return state.players.find(p => p.score >= TARGET) || null;
+  function initials(name){
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    if(parts.length === 0) return '?';
+    if(parts.length === 1) return parts[0].slice(0,2);
+    return parts[0][0] + parts[1][0];
+  }
+  function escapeAttr(str){ return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+  function escapeHtml(str){ return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function findPlayer(id){ return state.players.find(p => p.id === id); }
+
+  function buildNameOptions(currentName){
+    const takenNames = new Set(state.players.map(p => p.name));
+    let html = '';
+    let currentInRoster = false;
+    state.roster.forEach(n => {
+      const isTakenByOther = takenNames.has(n) && n !== currentName;
+      const isSelected = n === currentName;
+      if(isSelected) currentInRoster = true;
+      html += `<option value="${escapeAttr(n)}" ${isSelected ? 'selected' : ''} ${isTakenByOther ? 'disabled' : ''}>${escapeHtml(n)}${isTakenByOther ? ' (in use)' : ''}</option>`;
+    });
+    if(!currentInRoster){
+      html += `<option value="${escapeAttr(currentName)}" selected>${escapeHtml(currentName)}</option>`;
+    }
+    html += `<option value="__add_new__">+ Add new name…</option>`;
+    return html;
   }
 
+  function getActivePlayers(){ return state.players.filter(p => !p.busted); }
+
   function getLeaderId(){
-    const max = Math.max(...state.players.map(p => p.score));
-    if(max <= 0) return null;
-    const leaders = state.players.filter(p => p.score === max);
+    const active = getActivePlayers();
+    if(active.length < 2) return null;
+    const min = Math.min(...active.map(p => p.total));
+    const leaders = active.filter(p => p.total === min);
     return leaders.length === 1 ? leaders[0].id : null;
   }
 
-  function render(){
-    const winner = getWinner();
-    const leaderId = getLeaderId();
+  function fillClassFor(pct, state3){
+    if(state3 === 'bust') return 'bust';
+    if(state3 === 'win') return 'win';
+    if(state3 === 'lead') return 'lead';
+    return 'mid';
+  }
 
-    if(winner){
+  function render(){
+    const leaderId = state.gameOver ? null : getLeaderId();
+    const nowBustIds = new Set(state.players.filter(p => p.busted).map(p => p.id));
+
+    // Banner
+    if(state.gameOver && state.gameWinnerId){
+      const w = findPlayer(state.gameWinnerId);
       bannerEl.classList.add('show');
-      bannerTextEl.textContent = `${winner.name || 'Someone'} wins the game!`;
+      bannerTextEl.textContent = w ? (w.name || 'Someone') : '—';
+      bannerSubEl.textContent = w ? `Finished on ${w.total} points — lowest of the table` : '';
     } else {
       bannerEl.classList.remove('show');
     }
 
-    playersEl.innerHTML = '';
-
+    // Climb lanes
+    climbEl.innerHTML = '';
     state.players.forEach(p => {
-      const isWinner = winner && winner.id === p.id;
-      const isLeader = !winner && leaderId === p.id;
-      const pct = Math.max(0, Math.min(100, (p.score / TARGET) * 100));
+      const isWinner = state.gameOver && state.gameWinnerId === p.id;
+      const isBust = p.busted;
+      const isLead = !state.gameOver && !isBust && leaderId === p.id;
+      const pct = Math.max(2, Math.min(100, (p.total / TARGET) * 100));
+      const justBusted = isBust && !prevBustIds.has(p.id);
 
-      const card = document.createElement('div');
-      card.className = 'player' + (isLeader ? ' leader' : '') + (isWinner ? ' winner' : '');
+      let fillCls = 'mid';
+      if(isBust) fillCls = 'bust';
+      else if(isWinner) fillCls = 'win';
+      else if(isLead) fillCls = 'lead';
 
-      card.innerHTML = `
-        <div class="player-top">
-          <input class="name-input" type="text" value="${escapeAttr(p.name)}" placeholder="Player name" maxlength="20" data-id="${p.id}" data-action="rename">
-          <span class="crown">♛</span>
+      const lane = document.createElement('div');
+      lane.className = 'lane'
+        + (isLead ? ' lead' : '')
+        + (isWinner ? ' winner' : '')
+        + (isBust ? ' bust' : '')
+        + (justBusted ? ' shake' : '');
+
+      lane.innerHTML = `
+        <div class="lane-head">
+          <div class="avatar">${escapeHtml(initials(p.name))}</div>
+          <div class="lane-mid">
+            <div class="name-row">
+              <select class="name-input name-select" data-id="${p.id}" data-action="rename">
+                ${buildNameOptions(p.name)}
+              </select>
+              <span class="status-chip chip-lead">Lead</span>
+              <span class="status-chip chip-win">Winner</span>
+              <span class="status-chip chip-bust">Bust</span>
+            </div>
+            <div class="stat-line"><span>🏆 <b>${p.wins}</b> game${p.wins===1?'':'s'}</span><span>🎯 <b>${p.roundWins}</b> round${p.roundWins===1?'':'s'}</span></div>
+          </div>
+          <div class="del-btn" data-id="${p.id}" data-action="delete" title="Remove player">✕</div>
         </div>
-        <div class="score-row">
-          <div class="step-btn" data-id="${p.id}" data-action="dec">−</div>
-          <input class="score-input" type="number" inputmode="numeric" value="${p.score}" data-id="${p.id}" data-action="setscore">
-          <div class="step-btn" data-id="${p.id}" data-action="inc">+</div>
+        <div class="lane-score-row">
+          <div class="lane-score">${p.total}</div>
+          <div class="lane-score-target">/ ${TARGET}</div>
         </div>
-        <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
-        <div class="wins-row">
-          <span class="wins-label">Games Won</span>
-          <span class="tally">${tallyMarks(p.wins)} <span style="color:var(--chalk-dim); font-size:0.85em;">(${p.wins})</span></span>
-        </div>
+        <div class="track"><div class="fill ${fillCls}" style="width:${pct}%"></div></div>
       `;
-      playersEl.appendChild(card);
+      climbEl.appendChild(lane);
+    });
+
+    prevBustIds = nowBustIds;
+
+    // Entry card
+    if(state.gameOver){
+      entryCardEl.style.display = 'none';
+    } else {
+      entryCardEl.style.display = 'block';
+      entryTitleEl.textContent = `Enter round ${state.rounds.length + 1}`;
+      entryRowsEl.innerHTML = '';
+      state.players.forEach(p => {
+        const row = document.createElement('div');
+        row.className = 'entry-row';
+        if(p.busted){
+          row.innerHTML = `<div class="nm locked">${escapeHtml(p.name)} — out</div><input type="text" value="—" disabled>`;
+        } else {
+          row.innerHTML = `<div class="nm">${escapeHtml(p.name)}</div><input type="number" inputmode="numeric" placeholder="0" data-id="${p.id}" data-role="round-score">`;
+        }
+        entryRowsEl.appendChild(row);
+      });
+    }
+
+    // History
+    historyToggleLabelEl.textContent = `Round history (${state.rounds.length})`;
+    historyListEl.classList.toggle('open', historyOpen);
+    historyToggleEl.classList.toggle('open', historyOpen);
+    renderHistory();
+
+    // Trophy row (overall game wins)
+    trophyRowEl.innerHTML = '';
+    state.players.forEach(p => {
+      const cell = document.createElement('div');
+      cell.className = 'trophy-pill';
+      cell.innerHTML = `<div class="n">${p.wins}</div><div class="l">${escapeHtml(p.name)}</div>`;
+      trophyRowEl.appendChild(cell);
     });
   }
 
-  function tallyMarks(n){
-    if(n === 0) return '—';
-    const groups = Math.floor(n / 5);
-    const rem = n % 5;
-    let out = '卌'.repeat(groups); // five-bar tally glyph
-    out += '丨'.repeat(rem);
-    return out;
-  }
-
-  function escapeAttr(str){
-    return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
-  }
-
-  function findPlayer(id){ return state.players.find(p => p.id === id); }
-
-  playersEl.addEventListener('click', (e) => {
-    const el = e.target.closest('[data-action]');
-    if(!el) return;
-    const action = el.dataset.action;
-    const id = el.dataset.id;
-    const p = findPlayer(id);
-    if(!p) return;
-
-    if(action === 'inc'){ p.score += 1; save(); render(); }
-    if(action === 'dec'){ p.score = Math.max(0, p.score - 1); save(); render(); }
-  });
-
-  playersEl.addEventListener('change', (e) => {
-    const el = e.target;
-    const action = el.dataset.action;
-    const id = el.dataset.id;
-    const p = findPlayer(id);
-    if(!p) return;
-
-    if(action === 'setscore'){
-      let v = parseInt(el.value, 10);
-      if(isNaN(v) || v < 0) v = 0;
-      p.score = v;
-      save();
-      render();
-    }
-    if(action === 'rename'){
-      p.name = el.value.trim();
-      save();
-      render();
-    }
-  });
-
-  // Keep cursor sane: re-render on blur for name field already handled by 'change'
-
-  document.getElementById('addPlayerBtn').addEventListener('click', () => {
-    if(state.players.length >= 8){
-      showToast('Max 8 players');
+  function renderHistory(){
+    historyListEl.innerHTML = '';
+    if(state.rounds.length === 0){
+      historyListEl.innerHTML = `<div class="empty-history">No rounds played yet</div>`;
       return;
     }
-    const n = state.players.length + 1;
-    state.players.push({ id: 'p' + Date.now(), name: 'Player ' + n, score: 0, wins: 0 });
-    save();
-    render();
+    // newest first
+    for(let i = state.rounds.length - 1; i >= 0; i--){
+      const r = state.rounds[i];
+      const card = document.createElement('div');
+      card.className = 'round-card';
+      const winnerName = r.winnerId ? (findPlayer(r.winnerId)?.name || state.playersSnapshotName?.[r.winnerId] || '—') : null;
+
+      let gridHtml = '';
+      state.players.forEach(p => {
+        const val = r.scores[p.id];
+        if(val === undefined || val === null){
+          gridHtml += `<div><span class="pname">${escapeHtml(p.name)}</span><span class="pscore" style="color:var(--text-faint)">—</span></div>`;
+        } else {
+          const isLow = r.winnerId === p.id;
+          gridHtml += `<div><span class="pname">${escapeHtml(p.name)}</span><span class="pscore${isLow ? ' low' : ''}">${val}</span></div>`;
+        }
+      });
+
+      card.innerHTML = `
+        <div class="round-card-head">
+          <span class="round-num">Round ${i+1}</span>
+          ${winnerName ? `<span class="round-winner-tag">${escapeHtml(winnerName)} won round</span>` : ''}
+        </div>
+        <div class="round-grid">${gridHtml}</div>
+      `;
+      historyListEl.appendChild(card);
+    }
+  }
+
+  // ===== Event wiring =====
+
+  climbEl.addEventListener('click', (e) => {
+    const el = e.target.closest('[data-action="delete"]');
+    if(!el) return;
+    const id = el.dataset.id;
+    const p = findPlayer(id);
+    if(!p) return;
+    if(state.players.length <= 2){ showToast('Need at least 2 players'); return; }
+    if(confirm(`Remove ${p.name || 'this player'}? This clears the current game.`)){
+      state.players = state.players.filter(pl => pl.id !== id);
+      state.rounds = [];
+      state.gameOver = false;
+      state.gameWinnerId = null;
+      state.players.forEach(pl => { pl.total = 0; pl.busted = false; pl.roundWins = 0; });
+      prevBustIds = new Set();
+      save(); render();
+      showToast('Player removed, game reset');
+    }
   });
 
-  document.getElementById('resetScoresBtn').addEventListener('click', () => {
-    state.players.forEach(p => p.score = 0);
+  climbEl.addEventListener('change', (e) => {
+    const el = e.target;
+    if(el.dataset.action === 'rename'){
+      const p = findPlayer(el.dataset.id);
+      if(!p) return;
+
+      if(el.value === '__add_new__'){
+        const proposed = prompt('Enter a new player name:');
+        const trimmed = (proposed || '').trim();
+        if(!trimmed){
+          render(); // revert dropdown to previous selection
+          return;
+        }
+        if(trimmed.length > 20){
+          showToast('Name too long (max 20 characters)');
+          render();
+          return;
+        }
+        const dupActive = state.players.some(pl => pl.name.toLowerCase() === trimmed.toLowerCase() && pl.id !== p.id);
+        if(dupActive){
+          showToast('That name is already in this game');
+          render();
+          return;
+        }
+        if(!state.roster.some(n => n.toLowerCase() === trimmed.toLowerCase())){
+          state.roster.push(trimmed);
+        }
+        p.name = trimmed;
+        save(); render();
+        showToast(`${trimmed} added to the roster`);
+        return;
+      }
+
+      p.name = el.value.trim() || p.name;
+      save(); render();
+    }
+  });
+
+  document.getElementById('submitRoundBtn').addEventListener('click', () => {
+    if(state.gameOver) return;
+    const inputs = entryRowsEl.querySelectorAll('[data-role="round-score"]');
+    const scores = {};
+    let anyEntered = false;
+    let valid = true;
+
+    inputs.forEach(inp => {
+      const id = inp.dataset.id;
+      const raw = inp.value.trim();
+      if(raw === ''){
+        scores[id] = null;
+      } else {
+        const v = parseInt(raw, 10);
+        if(isNaN(v) || v < 0){ valid = false; }
+        else { scores[id] = v; anyEntered = true; }
+      }
+    });
+
+    if(!valid){ showToast('Enter valid round scores (0 or more)'); return; }
+    if(!anyEntered){ showToast('Enter at least one score'); return; }
+
+    // Apply scores
+    const activeIdsThisRound = [];
+    Object.keys(scores).forEach(id => {
+      const p = findPlayer(id);
+      if(!p) return;
+      const pts = scores[id];
+      if(pts === null) return; // left blank = treated as not played this round (shouldn't happen for active players, but safe)
+      p.total += pts;
+      activeIdsThisRound.push(id);
+      if(p.total > TARGET) p.busted = true;
+    });
+
+    // Determine round winner = lowest round score among those who entered this round
+    let roundWinnerId = null;
+    let lowest = Infinity;
+    activeIdsThisRound.forEach(id => {
+      const pts = scores[id];
+      if(pts < lowest){ lowest = pts; roundWinnerId = id; }
+      else if(pts === lowest){ roundWinnerId = null; } // tie = no single round winner
+    });
+    if(roundWinnerId){
+      const wp = findPlayer(roundWinnerId);
+      if(wp) wp.roundWins += 1;
+    }
+
+    state.rounds.push({ scores, winnerId: roundWinnerId });
+
+    // Check game over: when only one active (non-busted) player remains, AND at least one bust occurred
+    const active = getActivePlayers();
+    const anyBust = state.players.some(p => p.busted);
+    if(anyBust && active.length <= 1){
+      state.gameOver = true;
+      // winner = lowest total among ALL players (busted players excluded by definition since they're over target,
+      // but guard for edge case of everyone busting same round)
+      const candidates = active.length === 1 ? active : state.players;
+      let best = candidates[0];
+      candidates.forEach(p => { if(p.total < best.total) best = p; });
+      state.gameWinnerId = best.id;
+      best.wins += 1;
+    }
+
     save();
     render();
-    showToast('Scores reset');
+    showToast(state.gameOver ? `${findPlayer(state.gameWinnerId)?.name || 'Someone'} wins the game!` : 'Round saved');
+  });
+
+  historyToggleEl.addEventListener('click', () => {
+    historyOpen = !historyOpen;
+    historyListEl.classList.toggle('open', historyOpen);
+    historyToggleEl.classList.toggle('open', historyOpen);
+  });
+
+  document.getElementById('addPlayerBtn').addEventListener('click', () => {
+    if(state.players.length >= 8){ showToast('Max 8 players'); return; }
+    if(state.rounds.length > 0 && !state.gameOver){
+      if(!confirm('Adding a player will reset the current game. Continue?')) return;
+      state.rounds = [];
+      state.gameOver = false;
+      state.gameWinnerId = null;
+      state.players.forEach(pl => { pl.total = 0; pl.busted = false; pl.roundWins = 0; });
+      prevBustIds = new Set();
+    }
+    const usedNames = new Set(state.players.map(p => p.name));
+    const nextName = state.roster.find(n => !usedNames.has(n)) || ('Player ' + (state.players.length + 1));
+    state.players.push({ id: 'p'+Date.now(), name: nextName, total: 0, wins: 0, roundWins: 0, busted: false });
+    save(); render();
+  });
+
+  document.getElementById('resetGameBtn').addEventListener('click', () => {
+    if(!confirm('Reset the current game? Round history and totals will clear. Win tallies are kept.')) return;
+    state.rounds = [];
+    state.gameOver = false;
+    state.gameWinnerId = null;
+    state.players.forEach(p => { p.total = 0; p.busted = false; p.roundWins = 0; });
+    prevBustIds = new Set();
+    save(); render();
+    showToast('Game reset');
   });
 
   document.getElementById('resetWinsBtn').addEventListener('click', () => {
+    if(!confirm('Reset overall win tally for all players?')) return;
     state.players.forEach(p => p.wins = 0);
-    save();
-    render();
+    save(); render();
     showToast('Win tally reset');
   });
 
-  document.getElementById('newRoundBtn').addEventListener('click', () => {
-    const winner = getWinner();
-    if(winner){
-      winner.wins += 1;
-    }
-    state.players.forEach(p => p.score = 0);
-    save();
-    render();
-    showToast(winner ? `${winner.name}'s win recorded` : 'New round started');
+  document.getElementById('newGameBtn').addEventListener('click', () => {
+    state.rounds = [];
+    state.gameOver = false;
+    state.gameWinnerId = null;
+    state.players.forEach(p => { p.total = 0; p.busted = false; p.roundWins = 0; });
+    prevBustIds = new Set();
+    save(); render();
+    showToast('New game started');
   });
 
   load();
